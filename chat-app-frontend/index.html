@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat application</title>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="script.js"></script>
+  </head>
+  <body>
+    <h1>Chat App</h1>
+    <button type="button" id="update-messages">Update Messages</button>
+    <section id="chat-section">
+      <template id="chat-template">
+        <article class="message-box">
+          <p class="sender"></p>
+          <h3 class="message"></h3>
+        </article>
+      </template>
+      <div id="chat-container"></div>
+    </section>
+    <section id="section-form">
+      <form id="message-form">
+        <div>
+          <label for="message-input">Message</label>
+          <input type="text" id="message-input" name="message" required>
+        </div>
+        <button type="submit">Send</button>
+        <div>
+          <label for="sender-input">Nickname</label>
+          <input type="text" id="sender-input" name="sender" required>
+        </div>
+      </form>
+      <p id="message-feedback"></p>
+    </section>
+  </body>
+</html>
