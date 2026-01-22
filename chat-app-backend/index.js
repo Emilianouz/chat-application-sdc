@@ -10,19 +10,32 @@ app.use(express.json());
 const messages = [
   {
     message: "Either write something worth reading or do something worth writing.",
-    sender: "Benjamin Franklin",
+    sender: "Linus Torvalds",
+    timestamp: Date.now()
   },
   {
     message: "I should have been more kind.",
-    sender: "Clive James",
+    sender: "Bill Gates",
+    timestamp: Date.now()
   },
 ];
 
-app.get("/", (req, res) => {
-  res.json(messages);
+app.get("/messages", (req, res) => {
+const since = Number(req.query.since);
+
+  if (!since) {
+    //  return all messages
+    return res.json(messages);
+  }
+
+  const newMessages = messages.filter(
+    (msg) => msg.timestamp > since
+  );
+
+  res.json(newMessages);
 });
 
-app.post("/", (req, res) => {
+app.post("/messages", (req, res) => {
   const { message, sender } = req.body;
   
   if (!message || !sender) {
@@ -34,6 +47,7 @@ app.post("/", (req, res) => {
   messages.push({ 
     message: message,
     sender: sender,
+    timestamp: Date.now(),
   });
   
   res.status(201).json({ message: "Message sent" });
