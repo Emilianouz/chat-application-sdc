@@ -19,15 +19,15 @@
       <div id="chat-container"></div>
     </section>
     <section id="section-form">
-      <form id="message-form">
+      <form id="message-form" autocomplete="off">
         <div>
           <label for="message-input">Message</label>
-          <input type="text" id="message-input" name="message" required>
+          <input type="text" id="message-input" name="message" required autocomplete="new-password">
         </div>
         <button type="submit">Send</button>
         <div>
           <label for="sender-input">Nickname</label>
-          <input type="text" id="sender-input" name="sender" required>
+          <input type="text" id="sender-input" name="sender" required autocomplete="new-password">
         </div>
       </form>
       <p id="message-feedback"></p>
