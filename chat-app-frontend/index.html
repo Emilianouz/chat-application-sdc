@@ -12,8 +12,19 @@
     <section id="chat-section">
       <template id="chat-template">
         <article class="message-box">
-          <p class="sender"></p>
+          <h4 class="sender"></h4>
           <h3 class="message"></h3>
+
+          <div class="reactions">
+            <button class="likes-button" aria-label="Like">
+           👍 <span class="likes"></span>
+            </button>
+
+            <button class="dislikes-button" aria-label="Dislike">
+           👎 <span class="dislikes"></span>
+            </button>
+          </div>
+
         </article>
       </template>
       <div id="chat-container"></div>

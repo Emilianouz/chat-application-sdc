@@ -210,3 +210,46 @@ button[type="submit"]:hover {
 #chat-container::-webkit-scrollbar-track {
   background: transparent;
 }
+
+/* =========================
+   Reactions (Like / Dislike)
+========================= */
+.reactions {
+  display: flex;
+  gap: 14px;
+  margin-top: 6px;
+  align-items: center;
+}
+
+/* Icon buttons */
+.reactions button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  background: transparent;
+  border: none;
+  padding: 2px 4px;
+
+  font-size: 14px;
+  color: var(--text-secondary);
+  cursor: pointer;
+
+  border-radius: 6px;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.reactions button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
+}
+
+.reactions button:active {
+  transform: translateY(0);
+}
+
+/* Count text */
+.reactions span {
+  font-size: 12px;
+  font-weight: 500;
+}
