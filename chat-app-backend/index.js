@@ -135,3 +135,7 @@ wsServer.on("request", request => {
 server.listen(PORT, "0.0.0.0", () => {
   console.log("Server running on port " + PORT);
 });
+
+app.get("/", (req, res) => {
+  res.json({ status: "ok", message: "Chat API is running" });
+});
