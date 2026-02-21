@@ -4,7 +4,7 @@ import http from "http";
 import { server as WebSocketServer } from "websocket";
 
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 app.use(cors());
 app.use(express.json());
@@ -132,6 +132,6 @@ wsServer.on("request", request => {
   });
 });
 
-server.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+server.listen(PORT, "0.0.0.0", () => {
+  console.log("Server running on port " + PORT);
 });
