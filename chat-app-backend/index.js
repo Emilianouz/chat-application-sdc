@@ -1,91 +1,137 @@
 import express from "express";
 import cors from "cors";
-// create Express app
+import http from "http";
+import { server as WebSocketServer } from "websocket";
+
 const app = express();
 const port = 3000;
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static("public"));
 
-const messages = [
-  {
-    idMessage: 1,
-    likes:0,
-    dislikes:0,
-    message: "Either write something worth reading or do something worth writing.",
-    sender: "Linus Torvalds",
-    timestamp: Date.now()
-  },
-  {
-    idMessage: 2,
-    likes:0,
-    dislikes:0,
-    message: "I should have been more kind.",
-    sender: "Bill Gates",
-    timestamp: Date.now()
-  },
-];
-// Define GET endpoint
-app.get("/messages", (req, res) => {
-const since = Number(req.query.since);
-
-  if (!since) {
-    // if no timestamp return all messages
-    return res.json(messages);
-  }
-  // if there are timestamp filter only newer messages
-  const newMessages = messages.filter(
-    (msg) => msg.timestamp > since
-  );
-
-  res.json(newMessages); // send
+const server = http.createServer(app);
+const wsServer = new WebSocketServer({
+  httpServer: server,
+  autoAcceptConnections: false
 });
-// Define POST endpoint
-app.post("/messages", (req, res) => {
-  const { message, sender } = req.body; // extract data from request
-  
-  if (!message || !sender) { //validate
-    return res.status(400).json({ 
-      error: "Expected body to be a JSON object containing key message and sender." 
-    });
-  }
-  // save message with timestamp
-  messages.push({ 
-    idMessage: messages.length + 1,
-    message: message,
-    sender: sender,
-    likes:0,
-    dislikes:0,
-    timestamp: Date.now(),
+
+const messages = [];
+let connections = [];
+
+// -------- Helper: Broadcast to all WS clients --------
+function broadcast(data) {
+  connections.forEach(conn => {
+    conn.sendUTF(JSON.stringify(data));
   });
-  
-  res.status(201).json({ message: "Message sent" });
+}
+
+// -------- HTTP ROUTES (Polling still works) --------
+
+app.get("/messages", (req, res) => {
+  const since = Number(req.query.since);
+  if (!since) return res.json(messages);
+
+  const newMessages = messages.filter(msg => msg.timestamp > since);
+  res.json(newMessages);
 });
 
-//like endpoint
-app.post("/messages/:id/like",(req,res) => {
-  const id = Number(req.params.id);
-  const message = messages.find(msg => msg.idMessage === id);
-  if (!message){
-    return res.status(404).json({error:"Message not found"});
+app.post("/messages", (req, res) => {
+  const { message, sender } = req.body;
+  if (!message || !sender) {
+    return res.status(400).json({ error: "Missing message or sender" });
   }
-  message.likes += 1;
-  res.json({likes: message.likes});
-}
-);
-//dislike endpoint
-app.post("/messages/:id/dislike",(req,res) => {
-  const id = Number(req.params.id);
-  const message = messages.find(msg => msg.idMessage === id);
-  if (!message){
-    return res.status(404).json({error:"Message not found"});
-  }
-  message.dislikes += 1;
-  res.json({dislikes: message.dislikes});
-}
-);
 
-//start server
-app.listen(port, () => {
-  console.log(`Server running on port:${port}`);
+  const newMessage = {
+    idMessage: messages.length + 1,
+    message,
+    sender,
+    likes: 0,
+    dislikes: 0,
+    timestamp: Date.now()
+  };
+
+  messages.push(newMessage);
+
+  broadcast({ type: "new-message", payload: newMessage });
+
+  res.status(201).json(newMessage);
+});
+
+app.post("/messages/:id/like", (req, res) => {
+  const id = Number(req.params.id);
+  const msg = messages.find(m => m.idMessage === id);
+  if (!msg) return res.status(404).json({ error: "Not found" });
+
+  msg.likes++;
+
+  broadcast({ type: "update-like", payload: msg });
+
+  res.json({ likes: msg.likes });
+});
+
+app.post("/messages/:id/dislike", (req, res) => {
+  const id = Number(req.params.id);
+  const msg = messages.find(m => m.idMessage === id);
+  if (!msg) return res.status(404).json({ error: "Not found" });
+
+  msg.dislikes++;
+
+  broadcast({ type: "update-dislike", payload: msg });
+
+  res.json({ dislikes: msg.dislikes });
+});
+
+// -------- WEBSOCKET --------
+
+wsServer.on("request", request => {
+  const connection = request.accept(null, request.origin);
+  connections.push(connection);
+
+  connection.sendUTF(JSON.stringify({
+    type: "init",
+    payload: messages
+  }));
+
+  connection.on("message", message => {
+    const data = JSON.parse(message.utf8Data);
+
+    if (data.type === "new-message") {
+      const newMessage = {
+        idMessage: messages.length + 1,
+        message: data.payload.message,
+        sender: data.payload.sender,
+        likes: 0,
+        dislikes: 0,
+        timestamp: Date.now()
+      };
+
+      messages.push(newMessage);
+      broadcast({ type: "new-message", payload: newMessage });
+    }
+
+    if (data.type === "like") {
+      const msg = messages.find(m => m.idMessage === data.payload);
+      if (msg) {
+        msg.likes++;
+        broadcast({ type: "update-like", payload: msg });
+      }
+    }
+
+    if (data.type === "dislike") {
+      const msg = messages.find(m => m.idMessage === data.payload);
+      if (msg) {
+        msg.dislikes++;
+        broadcast({ type: "update-dislike", payload: msg });
+      }
+    }
+  });
+
+  connection.on("close", () => {
+    connections = connections.filter(conn => conn !== connection);
+  });
+});
+
+server.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
 });

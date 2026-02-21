@@ -1,47 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chat application</title>
+    <title>Chat application - WebSocket</title>
     <link rel="stylesheet" href="style.css">
-    <script defer src="script.js"></script>
-  </head>
-  <body>
+
+<body>
     <h1>Chat App</h1>
-    <section id="chat-section">
-      <template id="chat-template">
-        <article class="message-box">
-          <h4 class="sender"></h4>
-          <h3 class="message"></h3>
-
-          <div class="reactions">
-            <button class="likes-button" aria-label="Like">
-           👍 <span class="likes"></span>
-            </button>
-
-            <button class="dislikes-button" aria-label="Dislike">
-           👎 <span class="dislikes"></span>
-            </button>
-          </div>
-
-        </article>
-      </template>
-      <div id="chat-container"></div>
+    <section id="mode-selection">
+        <h2>Select Mode</h2>
+        <a href="index-polling.html">Polling Mode</a>
+        <br>
+        <a href="index-ws.html">WebSocket Mode</a>
     </section>
-    <section id="section-form">
-      <form id="message-form" autocomplete="off">
-        <div>
-          <label for="message-input">Message</label>
-          <input type="text" id="message-input" name="message" required autocomplete="new-password">
-        </div>
-        <button type="submit">Send</button>
-        <div>
-          <label for="sender-input">Nickname</label>
-          <input type="text" id="sender-input" name="sender" required autocomplete="new-password">
-        </div>
-      </form>
-      <p id="message-feedback"></p>
-    </section>
-  </body>
+    <footer>
+    <p>Built by <span class="byline">Emiliano Uruena</span> · CYF-SDC · Chat App ©  2026</p>
+    </footer>
+</body>
+
 </html>
