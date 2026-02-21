@@ -1,7 +1,8 @@
 import { state, render } from "./shared.js";
 
-const socket = new WebSocket("ws://localhost:3000");
-
+const socket = new WebSocket(
+  "wss://emiliano-chat-app-backend.hosting.codeyourfuture.io"
+);
 socket.onmessage = event => {
   const data = JSON.parse(event.data);
 
